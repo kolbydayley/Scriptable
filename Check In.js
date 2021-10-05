@@ -48,7 +48,7 @@ if (await alert.present() == 0) {
         }
     }
     let fm = await FileManager.iCloud();  // build file manager
-    let path = await fm.bookmarkedPath("Check-in"); // find the file that is associated with the bookmark that is defined in the settings of the Scriptable app, titled "Check-in" in the File Bookmarks section
+    let path = await fm.bookmarkedPath("Checkin"); // find the file that is associated with the bookmark that is defined in the settings of the Scriptable app, titled "Check-in" in the File Bookmarks section
     var cont = fm.readString(path);  // get current file
     let nCont = cont + finalSt; // add today's check-in to the file
     await fm.writeString(path, nCont);  // update the file with the newly formed check-in
