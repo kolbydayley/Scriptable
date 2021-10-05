@@ -75,6 +75,30 @@ if (await al.present() == 0) {
     var fm = await FileManager.iCloud();
     const path = fm.joinPath(fm.documentsDirectory(), "Check-in.js");
     fm.writeString(path, codeString);
+    
+	var a = new Alert();
+	a.title = "You will now select the time at which you would like to be presented your check-in notification. Press Next."
+    a.addAction("Next");
+	let dp = new DatePicker();
+	var time = await dp.pickTime();
+	log(time);
+    let df = new DateFormatter();
+	df.dateFormat = "H";
+	var hour = df.string(time);
+	log(hour);
+	df.dateFormat = "m";
+	var minute = df.string(time);
+	log(minute);
+	var n = new Notification();
+	n.title = "Check-in 📈";
+	n.body = "Click here to start your daily check-in";	
+    n.openURL = "scriptable:///run/Check-in";
+    hour = parseInt(hour)
+    minute = parseInt(minute)
+	n.setDailyTrigger(hour, minute, true);
+	n.schedule();
+
+
 } else {
     log("Canceled");
 }
