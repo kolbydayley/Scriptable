@@ -1,18 +1,20 @@
 // Variables used by Scriptable.
-// These must be at the very top of the file. Do not edit.
-// icon-color: gray; icon-glyph: magic;
+
+
+
+// CONSTANTS | UNCOMMENT THIS SECTION IF YOU WANT TO SET THESE VALUES MANUALLY
+// ------------------------------------------------------
+/*
 const PARTNER = ["(801) 372-7423"]; //input the phone numbers of the people to whome you want your check-ins sent
 // repeat the below rows with anything that you want on your check-in
 const CHECK_IN_AREAS = [
-  "Victim",
-  "Responsible for Paige",
-  "Got Support",
-  "Dailies",
-  "Lust",
-  "Social media",
-  "Boasted",
-  "Spanish time"
+  "item 1",
+  "item 2",
+  "..."
 ];
+*/
+// ------------------------------------------------------
+// END CONSANTS
 
 var textStorage = []; // init storage for the text message
 var finalSt; // init storage for the file on which your check-in will be stored
