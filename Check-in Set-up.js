@@ -31,7 +31,10 @@ const menu = contacts;
 contacts.sort()
 var table = new UITable();
 table.showSeparators = true;
-
+const r = new UITableRow();
+r.addText("Please select accountability partner");
+r.isHeader = true;
+table.addRow(r);
 
 for(var i in menu){
 	const row = new UITableRow()
