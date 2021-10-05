@@ -73,7 +73,7 @@ log(codeString)
 
 
 var fm = await FileManager.iCloud();
-const path = fm.joinPath(fm.documentsDirectory(), "Check-in 123.js");
+const path = fm.joinPath(fm.documentsDirectory(), "Check-in.js");
 fm.writeString(path, codeString);
 } else{
 	log("Canceled");
