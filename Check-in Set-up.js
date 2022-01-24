@@ -8,6 +8,7 @@ async function setUp(){
 	var url = encodeURI("scriptable:///run/Checkin");
 	console.log(url)
 	Safari.open(url);
+	Script.complete();
 }
 
 	
