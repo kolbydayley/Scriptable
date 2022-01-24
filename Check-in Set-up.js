@@ -2,7 +2,10 @@ const gitHubUrl = "https://raw.githubusercontent.com/kolbydayley/Scriptable/main
 var req = new Request(gitHubUrl);
 var codeString = await req.loadString();
 var fm = await FileManager.iCloud();
-const path = fm.joinPath(fm.documentsDirectory(), "Check-in.js");
+const path = fm.joinPath(fm.documentsDirectory(), "Checkin.js");
 fm.writeString(path, codeString);
-    
+var url = encodeURI("scriptable:///run/Untitled%20Script");
+console.log(url)
+Safari.open(url);
+
 	
