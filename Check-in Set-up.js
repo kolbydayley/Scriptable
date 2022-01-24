@@ -5,7 +5,7 @@ async function setUp(){
 	var fm = await FileManager.iCloud();
 	const path = fm.joinPath(fm.documentsDirectory(), "Checkin.js");
 	await fm.writeString(path, codeString);
-	var url = encodeURI("scriptable:///run/Untitled%20Script");
+	var url = encodeURI("scriptable:///run/Checkin");
 	console.log(url)
 	Safari.open(url);
 }
