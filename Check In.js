@@ -292,9 +292,7 @@ async function updateBookmark(settings) {
     var bmAdded = settings.bookmarkAdded || "false";
     console.log(bmAdded);
     if (!bmAdded || bmAdded === "false") {
-        var url = encodeURI("https://www.icloud.com/shortcuts/c9eea917f7e043eda50ea79d0798138d");
-        console.log(url)
-        updateSettings(settings)
+        var url = encodeURI("https://www.icloud.com/shortcuts/69da0b6d3b3c4946b99497be97250be2");
         Safari.open(url);
         Script.complete()
     } else {
