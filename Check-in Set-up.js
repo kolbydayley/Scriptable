@@ -10,5 +10,5 @@ async function setUp(){
 	Safari.open(url);
 	Script.complete();
 }
+setUp();
 
-	
