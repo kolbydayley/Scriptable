@@ -66,15 +66,6 @@ async function runCheckIn(settings) {
     var finalText; // init where the final text message will be stored
     var date = new Date(); // set date for logging
 
-
-    //titleStorage.push("Responsible for Paige");
-    //titleStorage.push("Got support");
-    //titleStorage.push("Dailies");
-    //titleStorage.push("Lust");
-    //titleStorage.push("Social media");
-    //titleStorage.push("Boasted");
-    //titleStorage.push("Spanish time");
-
     let alert = new Alert(); // create the alert object
     alert.title = "Check In"; // Set title
     for (var i in CHECK_IN_AREAS) { // fill the alert fields with the CHECK_IN_AREAS defined above	
@@ -130,7 +121,10 @@ async function runCheckIn(settings) {
     }
 }
 
-async function selectContact() {
+async function selectContact(contact) {
+	var c = Array.from(contact);
+	var partnerNum = c[0]
+    var partnerName = c[1]
     var cont = await ContactsContainer.all();
     //log(cont);
     var c = await Contact.all(cont);
@@ -153,8 +147,6 @@ async function selectContact() {
         }
     }
 
-    var partnerNum;
-    var partnerName;
     const menu = contacts;
     contacts.sort()
     var table = new UITable();
@@ -182,7 +174,7 @@ async function selectContact() {
     return [partnerNum, partnerName];
 }
 
-async function addCheckInItems() {
+async function addCheckInItems(cii) {
     var cis = [];
     var al = new Alert();
     al.addTextField("Example: Triggers,Hours Slept");
@@ -253,11 +245,16 @@ async function runMenu(settings) {
             await changeNotificationTime()
             break
         case 2:
-            var contact = await selectContact()
+            var contact = await selectContact(settings.accountabilityContact)
             await updateSettings(settings.checkInItems, contact, settings.checkInSheetPath, settings.bookmarkAdded);
             break
         case 3:
             var cii = await addCheckInItems();
+            console.log("cii" + toString(cii));
+            if(cii[0] == null){
+              cii = settings.checkInItems;
+              console.log("Add Check in Canceled")
+            }
             await updateSettings(cii, settings.accountabilityContact, settings.checkInSheetPath);
             break
         case 4:
@@ -292,7 +289,7 @@ async function updateBookmark(settings) {
     var bmAdded = settings.bookmarkAdded || "false";
     console.log(bmAdded);
     if (!bmAdded || bmAdded === "false") {
-        var url = encodeURI("https://www.icloud.com/shortcuts/69da0b6d3b3c4946b99497be97250be2");
+        var url = encodeURI("https://www.icloud.com/shortcuts/6987686f9e1947b18fc531fa1e72e224");
         Safari.open(url);
         Script.complete()
     } else {
@@ -312,6 +309,10 @@ async function showAlert(title, message) {
 }
 
 async function setup() {
+    /*var a = new Alert();
+    a.title = "You will now be guided through set-up, starting with contact selection. Tap next."
+    a.addAction("Next");
+    await a.present();*/
     var contact = await selectContact();
     if (contact[0] == null) {
         return -1
@@ -321,7 +322,7 @@ async function setup() {
         if (cii == "") {
             return -1;
         } else {
-            await updateSettings(cii, contact, path);
+            await updateSettings(cii,contact,settings.checkInSheetPath,settings.bmAdded);
             await changeNotificationTime();
             return 1
         }
@@ -342,6 +343,7 @@ const bookmarkName = "Checkin"
 if (settings.checkInItems == "") {
     action = "setup";
 }
+action = "setup";
 //createSettingsDefault()
 const PARTNER = Array.from(settings.accountabilityContact)[0];
 console.log(PARTNER)
