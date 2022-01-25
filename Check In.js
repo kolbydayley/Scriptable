@@ -60,16 +60,25 @@ function getSettings() {
 }
 
 async function runCheckIn(settings) {
-    // INITIALIZE VARIABLES FOR THIS FUNCTION
+    //console.log(settings);	
     var textStorage = []; // init storage for the text message
     var finalSt; // init storage for the file on which your check-in will be stored
     var finalText; // init where the final text message will be stored
     var date = new Date(); // set date for logging
 
-    // BUILD CHECK IN ALERT THAT WILL CAPTURE DATA
+
+    //titleStorage.push("Responsible for Paige");
+    //titleStorage.push("Got support");
+    //titleStorage.push("Dailies");
+    //titleStorage.push("Lust");
+    //titleStorage.push("Social media");
+    //titleStorage.push("Boasted");
+    //titleStorage.push("Spanish time");
+
     let alert = new Alert(); // create the alert object
     alert.title = "Check In"; // Set title
     for (var i in CHECK_IN_AREAS) { // fill the alert fields with the CHECK_IN_AREAS defined above	
+
         var t = CHECK_IN_AREAS[i];
         alert.addTextField(t).setNumbersAndPunctuationKeyboard();
     }
@@ -80,8 +89,6 @@ async function runCheckIn(settings) {
             textStorage.push(alert.textFieldValue(i));
         }
         log(textStorage);
-
-        //BUILD OUT THE DATA TO STORE IN THE FILE
         for (var i in textStorage) { // build the rows to be appended to the storage file
             if (i == 0) {
                 finalSt = date + "," + CHECK_IN_AREAS[i] + "," + textStorage[i] + "\n";
@@ -89,30 +96,31 @@ async function runCheckIn(settings) {
                 finalSt = finalSt + date + "," + CHECK_IN_AREAS[i] + "," + textStorage[i] + "\n";
             }
         }
-
-        //BUILD OUT THE TEXT MESSAGE DATA
+        log(finalSt);
+        log(textStorage);
         for (var j in textStorage) { // build the text message
             if (j == 0) {
                 finalText = CHECK_IN_AREAS[j] + ":" + textStorage[j] + "\n";
-            } else if (j < textStorage.length - 1) {
-                finalText = finalText + CHECK_IN_AREAS[j] + ":" + textStorage[j] + "\n";
             } else {
-                finalText = finalText + CHECK_IN_AREAS[j] + ":" + textStorage[j];
+                finalText = finalText + CHECK_IN_AREAS[j] + ":" + textStorage[j] + "\n";
             }
         }
-
-        // BUILD FILE MANAGER AND POPULATE FILE WITH CHECK-IN DATA
-        let fm = FileManager.local()
-        const iCloudInUse = fm.isFileStoredIniCloud(fm.bookmarkedPath("Checkin"))
-        fm = iCloudInUse ? FileManager.iCloud() : fm;
+        console.log(finalText);
+        //console.log(path);
+        let iCloudInUse = true;
+        //console.log("iCloud: " + iCloudInUse);
+        let fm = await iCloudInUse ? await FileManager.iCloud() : await FileManager.local()
         let path = fm.bookmarkedPath("Checkin");
-        fm.downloadFileFromiCloud(path); // find the file that is associated with the bookmark that is defined in the settings of the Scriptable app, titled "Checkin" in the File Bookmarks section and download it
-        var cont = fm.readString(path); // get current fill
+        fm.downloadFileFromiCloud(path);
+        // find the file that is associated with the bookmark that is defined in the settings of the Scriptable app, titled "Check-in" in the File Bookmarks section
+        console.log("Made it past FM");
+        var cont = fm.readString(path); // get current file
+        console.log("cont " + cont);
         let nCont = cont + finalSt; // add today's check-in to the file
         await fm.writeString(path, nCont); // update the file with the newly formed check-in
         let f = fm.read(path);
+        console.log("file contents " + f);
 
-        // SEND MESSAGE TO ACCOUNTABILITY CONTACT
         var mes = new Message(); // build text message
         mes.body = finalText;
         mes.recipients = [PARTNER];
@@ -122,10 +130,11 @@ async function runCheckIn(settings) {
     }
 }
 
-// FUNCTION TO CHOOSE A NEW CONTACT, RETURNS CONTACT ["PHONE NUMBER", "NAME"]
 async function selectContact() {
     var cont = await ContactsContainer.all();
+    //log(cont);
     var c = await Contact.all(cont);
+    //log(c)
     var contacts = [];
 
     for (var i in c) {
@@ -163,6 +172,8 @@ async function selectContact() {
         row.onSelect = async () => {
             partnerNum = num;
             partnerName = name;
+
+            //log("selection"+selection);
         }
         row.addText(name, sub)
         table.addRow(row);
@@ -171,7 +182,6 @@ async function selectContact() {
     return [partnerNum, partnerName];
 }
 
-//FUNCTION TO ADD NEW CHECK IN ITEMS, RETURNS AN ARRAY CONTAINING THE CHECK-IN VALUES
 async function addCheckInItems() {
     var cis = [];
     var al = new Alert();
@@ -192,12 +202,12 @@ async function addCheckInItems() {
     return cis;
 }
 
-//FUNCTION TO SET A NEW NOTIFICATION TIME
+
 async function changeNotificationTime() {
-    //CAPTURE NEW CHECK IN TIME
     var a = new Alert();
     a.title = "You will now select the time at which you would like to be presented your check-in notification. Press Next."
     a.addAction("Next");
+    await a.present();
     let dp = new DatePicker();
     var time = await dp.pickTime();
     log(time);
@@ -208,8 +218,6 @@ async function changeNotificationTime() {
     df.dateFormat = "m";
     var minute = df.string(time);
     log(minute);
-
-    //DELETE OLD NOTIFICATION AND BUILD A NEW ONE
     Notification.removePending(["scriptable-check-in"])
     var n = new Notification();
     n.title = "Check-in 📈";
@@ -223,8 +231,9 @@ async function changeNotificationTime() {
 }
 
 async function runMenu(settings) {
-    // BUILD MENU FOR INITIAL SCREEN
+    console.log("Made it into run menu")
     let menu = new Alert()
+    console.log("settings" + settings)
     menu.addCancelAction('Exit')
     menu.addAction('Check In')
     menu.addAction('Change check-in time')
@@ -233,11 +242,9 @@ async function runMenu(settings) {
     menu.addAction('Show spreadsheet')
     menu.addAction('Update check-in storage location')
     menu.addAction('Reset all')
-    menu.message = 'What would you like to do?'
+    menu.title = 'What would you like to do?'
     let menuOutput = await menu.presentSheet()
     log(menuOutput)
-
-    //TRIGGER FUNCTION BASED ON MENU SELECTION
     switch (menuOutput) {
         case 0:
             await runCheckIn(settings)
@@ -268,7 +275,11 @@ async function runMenu(settings) {
     }
 }
 
-//FUNCTION TO OPEN A FILE, WILL FORCE YOU TO LEAVE THE APP AND OPEN THE FILES APP
+async function selectPath() {
+    var dir = await DocumentPicker.open();
+    return dir;
+}
+
 async function openFile(path) {
     console.log(path);
     var url = encodeURI("shareddocuments://" + path);
@@ -277,12 +288,11 @@ async function openFile(path) {
     Script.complete()
 }
 
-//TRIGGER APPLE SHORTCUT TO UPDATE BOOKMARK, IF YOU HAVEN'T YET DOWNLOADED THE SHORTCUT, YOU WILL BE PROMPTED TO DOWNLOAD IT
 async function updateBookmark(settings) {
     var bmAdded = settings.bookmarkAdded || "false";
     console.log(bmAdded);
     if (!bmAdded || bmAdded === "false") {
-        var url = encodeURI("https://www.icloud.com/shortcuts/1959cf3cbc62438ca5ac0ca079ce916e");
+        var url = encodeURI("https://www.icloud.com/shortcuts/c9eea917f7e043eda50ea79d0798138d");
         console.log(url)
         updateSettings(settings)
         Safari.open(url);
@@ -305,30 +315,56 @@ async function showAlert(title, message) {
 
 async function setup() {
     var contact = await selectContact();
-    var cii = await addCheckInItems();
-    if (!path || !contact || !cii) {
-        var al = new Alert();
-        al.title = "Something went wrong. Please try again.";
-        al.present();
+    if (contact[0] == null) {
+        return -1
     } else {
-        updateSettings(cii, contact, path);
-        changeNotificationTime();
+        console.log("contact" + contact);
+        var cii = await addCheckInItems();
+        if (cii == "") {
+            return -1;
+        } else {
+            await updateSettings(cii, contact, path);
+            await changeNotificationTime();
+            return 1
+        }
     }
 }
 
 //MAIN
-var params = args.queryParameters // receives data from trigger url params, normally the url triggered by clicking a notification
-var action = params.action
+var params = args.queryParameters
+var action = null
+if (params) {
+    action = params.action;
+    console.log(action);
+}
 
-const settings = getSettings();
+let settings = getSettings();
+console.log(settings);
 const bookmarkName = "Checkin"
-if (!settings.checkInItems) { // if a user has not set up the app, this will force a setup action
+if (settings.checkInItems == "") {
     action = "setup";
 }
-//PULLS CONSTANTS FROM SETTINGS
+//createSettingsDefault()
 const PARTNER = Array.from(settings.accountabilityContact)[0];
-const CHECK_IN_AREAS = settings.checkInItems;
+console.log(PARTNER)
 
+var fm = FileManager.local();
+var dir = fm.libraryDirectory();
+//console.log(fm.listContents(dir));
+var path = fm.joinPath(dir, "check_in_tracker_settings.txt");
+//fm.remove(path);
+
+//input the phone numbers of the people to whome you want your check-ins sent
+// repeat the below rows with anything that you want on your check-in
+const CHECK_IN_AREAS = settings.checkInItems;
+//createSettingsDefault();
+//let fm = await FileManager.iCloud(); 
+// build file manager
+//let path = await fm.bookmarkedPath("Check-in")
+//updateSettings(settings.checkInItems,settings.accountabilityContact,path);
+//getSettings();
+
+// settings options are change accountsbility contaxt, change check-in items, find check in spreadsheet, send check in soreadsheet, check in
 switch (action) {
     case undefined:
         console.log("Made it to run menu")
@@ -338,7 +374,15 @@ switch (action) {
         runCheckIn(settings);
         break
     case "setup":
-        setup();
-    default:
-        runMenu(settings);
+        var res = await setup();
+        if (res == -1) {
+            break
+        } else {
+            settings = getSettings()
+            await runMenu(settings)
+            break
+        }
+        default:
+            await runMenu(settings);
+            break
 }
